@@ -10,9 +10,8 @@ library(raster)
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
     clean_names()
 
-system("unzip data/S_USA.EcomapSections.zip")
+#system("unzip data/S_USA.EcomapSections.zip")
 
-veg_data <- shapefile("S_USA.EcomapSections")
 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
@@ -23,8 +22,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      tabsetPanel(
                                        tabPanel("Background",
                                                 p("This is our information")),
-                                       tabPanel("Data Sources", 
-                                                h2("Data sources:"),
+                                       tabPanel("Data Source", 
+                                                h2("Data source:"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
                                                 a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
                                                 p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates which we will use in our exploration of fire locations.")
@@ -38,10 +37,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                    ) ),
                            tabPanel("Widget 1",
                                     sidebarLayout(
-                                        sidebarPanel("Vegetation Type",
-                                                     checkboxGroupInput(inputId = "pick_veg",
-                                                                        label = "Choose vegetation type:",
-                                                                        choices = unique(starwars$species))
+                                        sidebarPanel("Cal Fire Incident",
+                                                     checkboxGroupInput(inputId = "pick_incident",
+                                                                        label = "Choose whether CAL Fire or not:",
+                                                                        choices = unique(fire_data$cal_fire_incident))
                                         ),
                                         mainPanel("OUTPUT! 1",
                                                   plotOutput("sw_plot"))
