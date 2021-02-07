@@ -18,8 +18,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                        tabPanel("Background",
                                                 p("This is our information")),
                                        tabPanel("Data Sources", 
-                                                p("Data sources:"),
-                                                p("FIRST SOURCE")
+                                                h2("Data sources:"),
+                                                h3("California Wildfire Incidents between 2013-2020"),
+                                                a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
+                                                p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates which we will use in our exploration of fire locations.")
                                                 ),
                                        tabPanel("How to Use",
                                                 p("To use this app:"),
