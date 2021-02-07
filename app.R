@@ -6,6 +6,22 @@ library(shinythemes)
 ui <- fluidPage(theme = shinytheme("simplex"),
                 
                 navbarPage("California Fire",
+                           tabPanel("Welcome!",
+                                   mainPanel(
+                                     tabsetPanel(
+                                       tabPanel("Background",
+                                                p("This is our information")),
+                                       tabPanel("Data Sources", 
+                                                p("Data sources:"),
+                                                p("FIRST SOURCE")
+                                                ),
+                                       tabPanel("How to Use",
+                                                p("To use this app:"),
+                                                p("1. Select a tab along the top"),
+                                                p("2. Select a widget input as directed by widget"),
+                                                p("3. View the output!"))
+                                     )
+                                   ) ),
                            tabPanel("Widget 1",
                                     sidebarLayout(
                                         sidebarPanel("Vegetation Type",
