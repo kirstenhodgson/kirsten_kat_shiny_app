@@ -1,6 +1,12 @@
 library(tidyverse)
 library(shiny)
 library(shinythemes)
+library(here)
+library(janitor)
+
+#Read in the data: 
+fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
+    clean_names()
 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
@@ -38,7 +44,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("California counties",
                                                      selectInput(inputId = "pick_county",
                                                                  label = "Choose a California county:",
-                                                                 choices = unique(starwars$species))
+                                                                 choices = unique(fire_data$counties))
                                                      ),
                                         mainPanel("Output 2",
                                                   plotOutput("sw_plot_2"))
@@ -49,9 +55,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("Fire years",
                                                      sliderInput(inputId = "choose_years",
                                                                  label = "Choose a range of fire years:",
-                                                                 min = 1950,
+                                                                 min = 2013,
                                                                  max = 2020,
-                                                                 value = c(1950,2000))
+                                                                 value = c(2013,2000))
                                                      ),
                                         mainPanel("Output 3",
                                                   plotOutput("sw_plot_3"))
@@ -62,7 +68,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("California counties",
                                                      radioButtons(inputId = "choose_county_2",
                                                                   label = "Choose a California county:",
-                                                                  choices = unique(starwars$species)
+                                                                  choices = unique(fire_data$counties)
                                                                  )
                                                      ),
                                         mainPanel("Output 4",
