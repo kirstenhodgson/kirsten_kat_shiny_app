@@ -57,7 +57,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                  label = "Choose a range of fire years:",
                                                                  min = 2013,
                                                                  max = 2020,
-                                                                 value = c(2013,2000))
+                                                                 value = c(2013,2020))
                                                      ),
                                         mainPanel("Output 3",
                                                   plotOutput("sw_plot_3"))
