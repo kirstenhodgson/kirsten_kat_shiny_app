@@ -3,10 +3,16 @@ library(shiny)
 library(shinythemes)
 library(here)
 library(janitor)
+library(rgdal)
+library(raster)
 
 #Read in the data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
     clean_names()
+
+system("unzip data/S_USA.EcomapSections.zip")
+
+veg_data <- shapefile("S_USA.EcomapSections")
 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
