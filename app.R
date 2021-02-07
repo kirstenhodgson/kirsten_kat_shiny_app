@@ -1,49 +1,64 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
+library(tidyverse)
 library(shiny)
+library(shinythemes)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
+#Creating the user interface
+ui <- fluidPage(theme = shinytheme("simplex"),
+                
+                navbarPage("California Fire",
+                           tabPanel("Widget 1",
+                                    sidebarLayout(
+                                        sidebarPanel("Vegetation Type",
+                                                     checkboxGroupInput(inputId = "pick_veg",
+                                                                        label = "Choose vegetation type:",
+                                                                        choices = unique(starwars$species))
+                                        ),
+                                        mainPanel("OUTPUT! 1",
+                                                  plotOutput("sw_plot"))
+                                    )
+                           ),
+                           tabPanel("Widget 2",
+                                    sidebarLayout(
+                                        sidebarPanel("California counties",
+                                                     selectInput(inputId = "pick_county",
+                                                                 label = "Choose a California county:",
+                                                                 choices = unique(starwars$species))
+                                                     ),
+                                        mainPanel("Output 2",
+                                                  plotOutput("sw_plot_2"))
+                                    )
+                                    ),
+                           tabPanel("Widget 3",
+                                    sidebarLayout(
+                                        sidebarPanel("Fire years",
+                                                     sliderInput(inputId = "choose_years",
+                                                                 label = "Choose a range of fire years:",
+                                                                 min = 1950,
+                                                                 max = 2020,
+                                                                 value = c(1950,2000))
+                                                     ),
+                                        mainPanel("Output 3",
+                                                  plotOutput("sw_plot_3"))
+                                    )
+                                    ),
+                           tabPanel("Widget 4",
+                                    sidebarLayout(
+                                        sidebarPanel("California counties",
+                                                     radioButtons(inputId = "choose_county_2",
+                                                                  label = "Choose a California county:",
+                                                                  choices = unique(starwars$species)
+                                                                 )
+                                                     ),
+                                        mainPanel("Output 4",
+                                                  plotOutput("sw_plot_4"))
+                                    ))
+                           
+                ))
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
-)
-
-# Define server logic required to draw a histogram
+#Building the server:
 server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+    
+    
 }
-
-# Run the application 
 shinyApp(ui = ui, server = server)
