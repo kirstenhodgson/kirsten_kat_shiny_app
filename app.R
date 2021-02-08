@@ -21,7 +21,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                    mainPanel(
                                      tabsetPanel(
                                        tabPanel("Background",
-                                                p("This is our information")),
+                                                img(src = "fire.png", width = 700, height = 500),
+                                                p("This app will explore incidents of fire in California counties between 2013-2020. Later on, this app will have vegetation data & explore mapping of fire incidents and vegetation. Hooray!")),
                                        tabPanel("Data Source", 
                                                 h2("Data source:"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
