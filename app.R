@@ -5,14 +5,19 @@ library(here)
 library(janitor)
 library(rgdal)
 library(raster)
+library(sf)
+library(dplyr)
 
 #Read in the data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
-    clean_names()
+  clean_names() %>% 
+# Remove Oregon & Nevada from Data Frame: 
+  filter(counties != "State of Nevada",
+         counties != "State of Oregon",
+         counties != "Mexico")
 
 #system("unzip data/S_USA.EcomapSections.zip")
-
-
+ 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
                 
@@ -89,6 +94,23 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 #Building the server:
 server <- function(input, output) {
     
-    
+ acres_burned <- reactive({
+   fire_data %>% 
+     filter(counties == input$choose_county_2) %>% 
+     group_by(counties, archive_year) %>% 
+     mutate(total_acres_burned = sum(acres_burned)) 
+    })
+  
+  output$sw_plot_4 <- renderPlot({
+    ggplot(data = acres_burned(), aes(x = archive_year, y = total_acres_burned)) +
+      geom_line(size = 1, color = "red") +
+      labs(title = "Change in Total Acres Burned across Entire Selected \n California County from 2013 - 2019",
+           x = "Year",
+           y = "Total Acres Burned in the County") +
+      theme_gray() +
+      theme(plot.title = element_text(hjust = 0.5, size = 15)) +
+      scale_x_discrete(limits = c(2013, 2014, 2015, 2016, 2017,2018 ,2019))
+
+  })
 }
 shinyApp(ui = ui, server = server)
