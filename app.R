@@ -38,10 +38,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 img(src = "fire.png", width = 700, height = 500),
                                                 p("This app will explore incidents of fire in California counties between 2013-2020. Later on, this app will have vegetation data & explore mapping of fire incidents and vegetation. Hooray!")),
                                        tabPanel("Data Source", 
-                                                h2("Data source:"),
+                                                h2("Data sources:"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
                                                 a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
-                                                p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates which we will use in our exploration of fire locations.")
+                                                p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates which we will use in our exploration of fire locations."),
+                                                h3("California Wildfire Perimeters 1950 - 2019"),
+                                                a(href = "https://gis.data.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all?geometry=-138.776%2C31.410%2C-99.445%2C43.564", "Link"),
+                                                p("This dataset contains information from the California Government Database. It contains spatial data of the perimeters of all California wildfires between 1950 and 2019"),
+                                                h3("California Counties Spatial Data"),
+                                                p("This dataset contains spatial data for all California Counties")
                                                 ),
                                        tabPanel("How to Use",
                                                 p("To use this app:"),
@@ -104,6 +109,19 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 server <- function(input, output) {
   
  #Widget 2: 
+  year_perimeters <- reactive({
+    fire_perimeters %>% 
+      filter(year == input$pick_year)
+  })
+  
+  output$sw_plot_2 <- renderPlot({
+    ggplot() +
+      geom_sf(data = ca_counties, size = 0.2, color = "black", fill = "lightgray") +
+      geom_sf(data = year_perimeters(), size = 0.5, color = "red") +
+      theme_void() +
+      labs(title = "Map of Fire Perimeters across California in the Chosen Year")
+  })
+  
  #Widget 4:    
  acres_burned <- reactive({
    fire_data %>% 
