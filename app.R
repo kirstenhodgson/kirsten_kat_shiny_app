@@ -7,6 +7,7 @@ library(rgdal)
 library(raster)
 library(sf)
 library(dplyr)
+library(tigris)
 
 #Read in the fire data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
@@ -18,7 +19,7 @@ fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>%
 
 # Read in CA counties map data:
 ca_counties <- read_sf(here("data","ca_counties"), layer = "CA_Counties_TIGER2016") %>% 
-  clean_names() 
+  clean_names()
 
 #Read in CA fire perimeters data: 
 fire_perimeters <- read_sf(here("data", "fire_perimeters"), layer = "California_Fire_Perimeters__all_") %>% 
@@ -122,6 +123,20 @@ server <- function(input, output) {
       geom_sf(data = year_perimeters(), size = 0.5, color = "red") +
       theme_void() +
       labs(title = "Map of Fire Perimeters across California in the Chosen Year")
+  })
+  
+ #Widget 3:
+  fire_counts <- reactive({
+    fire_counts <- fire_data %>% 
+      filter(archive_year %in% input$choose_years) %>% 
+      group_by(counties) %>% 
+      summarize(count = n())
+  })
+  
+  counties_fires_merged <- geo_join(ca_counties, fire_counts, by_sp = 'name', by_df = 'counties')
+  
+  output$sw_plot_3 <- renderPlot({
+    ggplot() + geom_map(data = fire_counts, aes())
   })
   
  #Widget 4:    
