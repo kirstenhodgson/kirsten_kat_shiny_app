@@ -24,7 +24,27 @@ ca_counties <- read_sf(here("data","ca_counties"), layer = "CA_Counties_TIGER201
 #Read in CA fire perimeters data: 
 fire_perimeters <- read_sf(here("data", "fire_perimeters"), layer = "California_Fire_Perimeters__all_") %>% 
   clean_names() %>% 
-  filter(year %in% c(2013, 2014, 2015, 2016, 2017, 2018, 2019))
+  filter(year %in% c(2013, 2014, 2015, 2016, 2017, 2018, 2019)) %>% 
+  mutate(cause_label = case_when(cause == 1 ~ "Lightning",
+                                 cause == 2 ~ "Equipment Use",
+                                 cause == 3 ~ "Smoking",
+                                 cause == 4 ~ "Campfire",
+                                 cause == 5 ~ "Debris",
+                                 cause == 6 ~ "Railroad",
+                                 cause == 7 ~ "Arson",
+                                 cause == 8 ~ "Playing with Fire",
+                                 cause == 9 ~ "Miscellaneous",
+                                 cause == 10 ~ "Vehicle",
+                                 cause == 11 ~ "Powerline",
+                                 cause == 12 ~ "Firefighter Training",
+                                 cause == 13 ~ "Non-firefighter Training",
+                                 cause == 14 ~ "Unknown/Unidentified",
+                                 cause == 15 ~ "Structure",
+                                 cause == 16 ~ "Aircraft",
+                                 cause == 17 ~ "Volcanic",
+                                 cause == 18 ~ "Escaped Prescribed Burn",
+                                 cause == 19 ~ "Illegal Alien Campfire",
+                                 TRUE ~ "Not Recorded"))
 
 #system("unzip data/S_USA.EcomapSections.zip")
  
@@ -60,10 +80,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                    ) ),
                            tabPanel("Widget 1",
                                     sidebarLayout(
-                                        sidebarPanel("Cal Fire Incident",
-                                                     checkboxGroupInput(inputId = "pick_incident",
-                                                                        label = "Choose whether CAL Fire or not:",
-                                                                        choices = unique(fire_data$cal_fire_incident))
+                                        sidebarPanel("Fire Cause",
+                                                     checkboxGroupInput(inputId = "pick_cause",
+                                                                        label = "Choose fire cause(s) of interest:",
+                                                                        choices = unique(fire_perimeters$cause_label))
                                         ),
                                         mainPanel("OUTPUT! 1",
                                                   plotOutput("sw_plot"))
@@ -112,6 +132,18 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 server <- function(input, output) {
   
  #Widget 1:
+  fire_cause <- reactive({
+    fire_perimeters %>% 
+      group_by(cause_label, year) %>% 
+      summarize(cause_count = n()) %>% 
+      filter(cause_label %in% input$pick_cause)
+  })
+  
+  output$sw_plot <- renderPlot({
+    ggplot(data = fire_perimeters, aes(x = year, y = cause_count, color = cause_label)) +
+      geom_line() +
+      theme_minimal()
+  })
   
  #Widget 2: 
   year_perimeters <- reactive({
@@ -128,20 +160,20 @@ server <- function(input, output) {
   })
   
  #Widget 3:
-  fire_counts <- reactive({
-    fire_counts <- fire_data %>% 
-      filter(archive_year %in% input$choose_years) %>% 
-      group_by(counties) %>% 
-      summarize(count = n())
-  })
+  #fire_counts <- reactive({
+   # fire_counts <- fire_data %>% 
+    #  filter(archive_year %in% input$choose_years) %>% 
+     # group_by(counties) %>% 
+      #summarize(count = n())
+  #})
   
-  counties_fires_merged <- geo_join(ca_counties, fire_counts, by_sp = 'name', by_df = 'counties')
+  #counties_fires_merged <- geo_join(ca_counties, fire_counts, by_sp = 'name', by_df = 'counties')
   
-  output$sw_plot_3 <- renderPlot({
-    ggplot(data = counties_fires_merged) +
-      geom_sf(aes(fill = count), color = "black", size = 0.1) +
-      scale_fill_viridis(option = "inferno")
-  })
+  #output$sw_plot_3 <- renderPlot({
+   # ggplot(data = counties_fires_merged) +
+    #  geom_sf(aes(fill = count), color = "black", size = 0.1) +
+     # scale_fill_viridis(option = "inferno")
+  #})
   
  #Widget 4:    
  acres_burned <- reactive({
