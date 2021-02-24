@@ -111,6 +111,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 #Building the server:
 server <- function(input, output) {
   
+ #Widget 1:
+  
  #Widget 2: 
   year_perimeters <- reactive({
     fire_perimeters %>% 
@@ -136,7 +138,9 @@ server <- function(input, output) {
   counties_fires_merged <- geo_join(ca_counties, fire_counts, by_sp = 'name', by_df = 'counties')
   
   output$sw_plot_3 <- renderPlot({
-    ggplot() + geom_map(data = fire_counts, aes())
+    ggplot(data = counties_fires_merged) +
+      geom_sf(aes(fill = count), color = "black", size = 0.1) +
+      scale_fill_viridis(option = "inferno")
   })
   
  #Widget 4:    
