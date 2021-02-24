@@ -172,9 +172,8 @@ server <- function(input, output) {
   })
   
   output$sw_plot_3 <- renderPlot({
-    ggplot(data = counties_fires_merged()) +
-      geom_sf(aes(fill = count), color = "black", size = 0.1) +
-      scale_fill_viridis(option = "inferno")
+    ggplot() +
+      geom_sf(data = counties_fires_merged(), aes(fill = count), color = "black", size = 0.1)
   })
   
  #Widget 4:    
