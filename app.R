@@ -57,19 +57,26 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      tabsetPanel(
                                        tabPanel("Background",
                                                 img(src = "fire.png", width = 700, height = 500),
-                                                p("This app will explore incidents of fire in California counties between 2013-2020. Later on, this app will have vegetation data & explore mapping of fire incidents and vegetation. Hooray!"),
+                                                p("This app will explore incidents of fire in all California counties between 2013-2020 using data from Cal Fire and the California Government. 
+                                                  This app will explore the causes of fire across study years, vizualize fire perimeters across all of california for each given year,
+                                                  visualize the number of fires per county given a range of years, and explore the total acres burned in each county across the study period to gain a better 
+                                                  understanding of how fire intensity and quantity has chaged in the last decade."),
                                                 img(src = "county_map.gif", width = 700),
                                                 p("Map of California counties. Image source: geology.com")),
                                        tabPanel("Data Source", 
                                                 h2("Data sources:"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
                                                 a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
-                                                p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates which we will use in our exploration of fire locations."),
+                                                p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates, and includes information regarding the acres burned in each fire event.
+                                                  We will use this dataset to explore the total acreage burned per county as well as the number of fires per county across the study window."),
                                                 h3("California Wildfire Perimeters 1950 - 2019"),
                                                 a(href = "https://gis.data.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all?geometry=-138.776%2C31.410%2C-99.445%2C43.564", "Link"),
-                                                p("This dataset contains information from the California Government Database. It contains spatial data of the perimeters of all California wildfires between 1950 and 2019"),
+                                                p("This dataset contains information from the California Government Database. It contains spatial data of the perimeters of all California wildfires between 1950 and 2019 as well as information regarding the causes of fire.
+                                                  We will use this dataset to map the perimeter of California fires and explore how the causes of fires change across the study period."),
                                                 h3("California Counties Spatial Data"),
-                                                p("This dataset contains spatial data for all California Counties")
+                                                a(href = "https://data.ca.gov/dataset/ca-geographic-boundaries/resource/b0007416-a325-4777-9295-368ea6b710e6", "Link"),
+                                                p("This dataset contains information from the California Government Database. It contains spatial data for the perimeters of all California Counties.
+                                                  We will use this dataset as a background map to plot fire information spatially across California counties.")
                                                 ),
                                        tabPanel("How to Use",
                                                 p("To use this app:"),
