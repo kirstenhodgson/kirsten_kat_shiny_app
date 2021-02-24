@@ -160,20 +160,22 @@ server <- function(input, output) {
   })
   
  #Widget 3:
-  #fire_counts <- reactive({
-   # fire_counts <- fire_data %>% 
-    #  filter(archive_year %in% input$choose_years) %>% 
-     # group_by(counties) %>% 
-      #summarize(count = n())
-  #})
+  fire_counts <- reactive({
+    fire_counts <- fire_data %>% 
+      filter(archive_year %in% input$choose_years) %>% 
+      group_by(counties) %>% 
+      summarize(count = n())
+  })
   
-  #counties_fires_merged <- geo_join(ca_counties, fire_counts, by_sp = 'name', by_df = 'counties')
+  counties_fires_merged <- reactive({
+    geo_join(ca_counties, fire_counts(), by_sp = 'name', by_df = 'counties')
+  })
   
-  #output$sw_plot_3 <- renderPlot({
-   # ggplot(data = counties_fires_merged) +
-    #  geom_sf(aes(fill = count), color = "black", size = 0.1) +
-     # scale_fill_viridis(option = "inferno")
-  #})
+  output$sw_plot_3 <- renderPlot({
+    ggplot(data = counties_fires_merged()) +
+      geom_sf(aes(fill = count), color = "black", size = 0.1) +
+      scale_fill_viridis(option = "inferno")
+  })
   
  #Widget 4:    
  acres_burned <- reactive({
