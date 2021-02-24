@@ -46,6 +46,11 @@ fire_perimeters <- read_sf(here("data", "fire_perimeters"), layer = "California_
                                  cause == 19 ~ "Illegal Alien Campfire",
                                  TRUE ~ "Not Recorded"))
 
+fire_cause_counts <- fire_perimeters %>% 
+    group_by(cause_label, year) %>% 
+    summarize(cause_count = n()) %>% 
+    ungroup()
+
 #system("unzip data/S_USA.EcomapSections.zip")
  
 #Creating the user interface
@@ -140,14 +145,15 @@ server <- function(input, output) {
   
  #Widget 1:
   fire_cause <- reactive({
-    fire_perimeters %>% 
-      filter(cause_label %in% input$pick_cause) %>% 
-      group_by(cause_label, year) %>% 
-      summarize(cause_count = n()) 
+    fire_cause_counts %>% 
+      filter(cause_label %in% input$pick_cause)
   })
   
   output$sw_plot <- renderPlot({
-    ggplot(data = fire_cause(), aes(x = year, y = cause_count, color = cause_label)) +
+    ggplot(data = fire_cause(), aes(x = year, 
+                                    y = cause_count, 
+                                    group = cause_label, 
+                                    color = cause_label)) +
       geom_line() +
       theme_minimal()
   })
@@ -169,7 +175,7 @@ server <- function(input, output) {
  #Widget 3:
   fire_counts <- reactive({
     fire_counts <- fire_data %>% 
-      filter(archive_year %in% input$choose_years) %>% 
+      filter(between(archive_year, input$choose_years[1], input$choose_years[2])) %>% 
       group_by(counties) %>% 
       summarize(count = n())
   })
