@@ -134,13 +134,13 @@ server <- function(input, output) {
  #Widget 1:
   fire_cause <- reactive({
     fire_perimeters %>% 
+      filter(cause_label %in% input$pick_cause) %>% 
       group_by(cause_label, year) %>% 
-      summarize(cause_count = n()) %>% 
-      filter(cause_label %in% input$pick_cause)
+      summarize(cause_count = n()) 
   })
   
   output$sw_plot <- renderPlot({
-    ggplot(data = fire_perimeters, aes(x = year, y = cause_count, color = cause_label)) +
+    ggplot(data = fire_cause(), aes(x = year, y = cause_count, color = cause_label)) +
       geom_line() +
       theme_minimal()
   })
