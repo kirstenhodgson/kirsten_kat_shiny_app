@@ -160,8 +160,8 @@ server <- function(input, output) {
   
   output$sw_plot_2 <- renderPlot({
     ggplot() +
-      geom_sf(data = ca_counties, size = 0.2, color = "black", fill = "lightgray") +
-      geom_sf(data = year_perimeters(), size = 0.5, color = "red") +
+      geom_sf_text(data = ca_counties, size = 0.1, color = "black", fill = "gray88", aes(label = "name")) +
+      geom_sf(data = year_perimeters(), size = 0.5, color = "red", fill = "red") +
       theme_void() +
       labs(title = "Map of Fire Perimeters across California in the Chosen Year")
   })
@@ -197,7 +197,7 @@ server <- function(input, output) {
       labs(title = "Change in Total Acres Burned across Entire Selected \n California County from 2013 - 2019",
            x = "Year",
            y = "Total Acres Burned in the County") +
-      theme_gray() +
+      theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5, size = 15)) +
       scale_x_discrete(limits = c(2013, 2014, 2015, 2016, 2017,2018 ,2019))
   })
