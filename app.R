@@ -8,6 +8,7 @@ library(raster)
 library(sf)
 library(dplyr)
 library(tigris)
+library(viridis)
 
 #Read in the fire data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
@@ -206,7 +207,8 @@ server <- function(input, output) {
               size = 0.1) +
       theme_void() +
       labs(fill = "Number of fires\nin selected years",
-           title = "Number of fires by California county in selected years")
+           title = "Number of fires by California county in selected years") +
+      scale_fill_viridis(option = "inferno") #Something weird might be happening in Riverside - check it out
   })
   
  #Widget 4:    
