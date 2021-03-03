@@ -77,7 +77,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 img(src = "county_map.gif", width = 700),
                                                 p(" "),
                                                 p("Map of California counties. Image source: geology.com")),
-                                       tabPanel("Data Source", 
+                                       tabPanel("Data Sources", 
                                                 h2("Data sources:"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
                                                 a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
@@ -93,14 +93,17 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                   We will use this dataset as a background map to plot fire information spatially across California counties."),
                                                 img(src = "paradise.png", width = 700, height = 500),
                                                 p("Paradise, California Destruction after the Camp Fire 2019. Image source: New York Times"),
-                                                a(href = "https://www.nytimes.com/2019/02/28/business/energy-environment/pge-camp-fire.html", "Link")
+                                                a(href = "https://www.nytimes.com/2019/02/28/business/energy-environment/pge-camp-fire.html", "Photo Source")
                                                 ),
                                        tabPanel("How to Use",
-                                                p("This app contains widgets that allow the user to explore the number of fires in California by cause, view a map of fire perimeters in each year, "),
-                                                p("To use this app:"),
-                                                p("1. Select a tab along the top to view the widgets."),
-                                                p("2. Select a widget input as directed."),
-                                                p("3. View the output created by your selection!"))
+                                                p("This app contains widgets that allow the user to explore the number of fires in California by cause, view a map of fire perimeters in each year, view a map of the number of fires per county, and explore the number of acres burned per county."),
+                                                h2("To use this app:"),
+                                                p("1. Select a tab along the top of the app to view the widgets."),
+                                                p("2. Select a widget input on the left hand side as directed."),
+                                                p("3. View the output created by your selection!"),
+                                                img(src = "thomas.png", width = 700, height = 500),
+                                                p("View of Santa Barbara During the Thomas Fire in 2017. Image Source: Santa Barbara Independent."),
+                                                a(href = "https://www.independent.com/2017/12/13/closing-schools-and-moving-finals-due-thomas-fire/", "Photo Source"))
                                      )
                                    ) ),
                            tabPanel("Widget 1",
@@ -123,7 +126,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                  label = "Choose a Year:",
                                                                  choices = unique(fire_perimeters$year))
                                                      ),
-                                        mainPanel("Fire perimeters",
+                                        mainPanel("Fire Perimeters",
                                                   plotOutput("sw_plot_2"))
                                     )
                                     ),
@@ -187,7 +190,7 @@ server <- function(input, output) {
   
   output$sw_plot_2 <- renderPlot({
     ggplot() +
-      geom_sf_text(data = ca_counties, size = 0.1, color = "black", fill = "gray88", aes(label = "name")) +
+      geom_sf(data = ca_counties, size = 0.1, color = "black", fill = "lightgray") +
       geom_sf(data = year_perimeters(), size = 0.5, color = "red", fill = "red") +
       theme_void() +
       labs(title = "Map of Fire Perimeters across California in the Chosen Year")
