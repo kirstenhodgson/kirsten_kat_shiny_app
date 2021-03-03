@@ -8,6 +8,7 @@ library(raster)
 library(sf)
 library(dplyr)
 library(tigris)
+library(viridis)
 
 #Read in the fire data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
@@ -61,12 +62,17 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                    mainPanel(
                                      tabsetPanel(
                                        tabPanel("Background",
+                                                p(""),
                                                 img(src = "fire.png", width = 700, height = 500),
+                                                p(" "),
                                                 p("This app will explore incidents of fire in all California counties between 2013-2020 using data from Cal Fire and the California Government. 
                                                   This app will explore the causes of fire across study years, vizualize fire perimeters across all of california for each given year,
                                                   visualize the number of fires per county given a range of years, and explore the total acres burned in each county across the study period to gain a better 
-                                                  understanding of how fire intensity and quantity has chaged in the last decade."),
+                                                  understanding of how fire intensity and quantity has changed in the last decade."),
+                                                p(" "),
+                                                p(" "),
                                                 img(src = "county_map.gif", width = 700),
+                                                p(" "),
                                                 p("Map of California counties. Image source: geology.com")),
                                        tabPanel("Data Source", 
                                                 h2("Data sources:"),
@@ -84,6 +90,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                   We will use this dataset as a background map to plot fire information spatially across California counties.")
                                                 ),
                                        tabPanel("How to Use",
+                                                p(""),
                                                 p("To use this app:"),
                                                 p("1. Select a tab along the top"),
                                                 p("2. Select a widget input as directed by widget"),
@@ -95,10 +102,12 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("Fire Cause",
                                                      checkboxGroupInput(inputId = "pick_cause",
                                                                         label = "Choose fire cause(s) of interest:",
-                                                                        choices = unique(fire_perimeters$cause_label))
+                                                                        choices = unique(fire_perimeters$cause_label),
+                                                                        selected = "Unknown/Unidentified")
                                         ),
-                                        mainPanel("OUTPUT! 1",
-                                                  plotOutput("sw_plot"))
+                                        mainPanel(plotOutput("sw_plot"),
+                                                  "This is where I am going to write and format a description of the graph of fire cause.
+                                                  Information about fire cause classification was taken from the web-based data source.")
                                     )
                            ),
                            tabPanel("Widget 2",
@@ -108,7 +117,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                  label = "Choose a Year:",
                                                                  choices = unique(fire_perimeters$year))
                                                      ),
-                                        mainPanel("Output 2",
+                                        mainPanel("Fire perimeters",
                                                   plotOutput("sw_plot_2"))
                                     )
                                     ),
@@ -119,10 +128,11 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                  label = "Choose a range of fire years:",
                                                                  min = 2013,
                                                                  max = 2020,
-                                                                 value = c(2013,2020))
+                                                                 value = c(2013,2020),
+                                                                 sep = "")
                                                      ),
-                                        mainPanel("Output 3",
-                                                  plotOutput("sw_plot_3"))
+                                        mainPanel(plotOutput("sw_plot_3"),
+                                                  "This is where I am going to write and format an awesome description of my map of fire counts.")
                                     )
                                     ),
                            tabPanel("Widget 4",
@@ -133,7 +143,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                   choices = unique(fire_data$counties)
                                                                  )
                                                      ),
-                                        mainPanel("Output 4",
+                                        mainPanel("Change in total acres burned by county",
                                                   plotOutput("sw_plot_4"))
                                     ))
                            
@@ -155,7 +165,12 @@ server <- function(input, output) {
                                     group = cause_label, 
                                     color = cause_label)) +
       geom_line() +
-      theme_minimal()
+      theme_minimal() +
+      labs(x = "\nYear", 
+           y = "Number of fires\n", 
+           color = "Fire cause",
+           title = "Number of California fires by cause, 2013-2019")
+
   })
   
  #Widget 2: 
@@ -186,7 +201,14 @@ server <- function(input, output) {
   
   output$sw_plot_3 <- renderPlot({
     ggplot() +
-      geom_sf(data = counties_fires_merged(), aes(fill = count), color = "black", size = 0.1)
+      geom_sf(data = counties_fires_merged(), 
+              aes(fill = count), 
+              color = "black", 
+              size = 0.1) +
+      theme_void() +
+      labs(fill = "Number of fires\nin selected years",
+           title = "Number of fires by California county in selected years") +
+      scale_fill_viridis(option = "inferno") #Something weird might be happening in Riverside - check it out
   })
   
  #Widget 4:    
