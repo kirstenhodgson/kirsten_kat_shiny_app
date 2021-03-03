@@ -96,11 +96,11 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 a(href = "https://www.nytimes.com/2019/02/28/business/energy-environment/pge-camp-fire.html", "Link")
                                                 ),
                                        tabPanel("How to Use",
-                                                p(""),
+                                                p("This app contains widgets that allow the user to explore the number of fires in California by cause, view a map of fire perimeters in each year, "),
                                                 p("To use this app:"),
-                                                p("1. Select a tab along the top"),
-                                                p("2. Select a widget input as directed by widget"),
-                                                p("3. View the output!"))
+                                                p("1. Select a tab along the top to view the widgets."),
+                                                p("2. Select a widget input as directed."),
+                                                p("3. View the output created by your selection!"))
                                      )
                                    ) ),
                            tabPanel("Widget 1",
