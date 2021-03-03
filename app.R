@@ -64,7 +64,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                        tabPanel("Background",
                                                 p(""),
                                                 img(src = "fire.png", width = 700, height = 500),
-                                                p(" "),
+                                                p("Wildfire devestation and impact across the state of California has been an increasingly worseing issue in recent decades in the face of the changing climate.
+                                                  The 10 largest fires in the states history have all occured since 2000. Increasing temperatures, intense drought conditions, strong Santa Ana winds, and adverse affects caused by humans,
+                                                  such as downed powerlines and the now infamous gender reveal party fireworks that sparked the destructive El Dorado Fire burning more than 20,000 acres in 2020, are all contributors to the states growing
+                                                  threat of wildfire."),
                                                 p("This app will explore incidents of fire in all California counties between 2013-2020 using data from Cal Fire and the California Government. 
                                                   This app will explore the causes of fire across study years, vizualize fire perimeters across all of california for each given year,
                                                   visualize the number of fires per county given a range of years, and explore the total acres burned in each county across the study period to gain a better 
