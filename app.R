@@ -90,7 +90,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 h3("California Counties Spatial Data"),
                                                 a(href = "https://data.ca.gov/dataset/ca-geographic-boundaries/resource/b0007416-a325-4777-9295-368ea6b710e6", "Link"),
                                                 p("This dataset contains information from the California Government Database. It contains spatial data for the perimeters of all California Counties.
-                                                  We will use this dataset as a background map to plot fire information spatially across California counties.")
+                                                  We will use this dataset as a background map to plot fire information spatially across California counties."),
+                                                img(src = "paradise.png", width = 700, height = 500),
+                                                p("Paradise, California Destruction after the Camp Fire 2019. Image source: New York Times"),
+                                                a(href = "https://www.nytimes.com/2019/02/28/business/energy-environment/pge-camp-fire.html", "Link")
                                                 ),
                                        tabPanel("How to Use",
                                                 p(""),
