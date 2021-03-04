@@ -52,7 +52,10 @@ fire_cause_counts <- fire_perimeters %>%
     summarize(cause_count = n()) %>% 
     ungroup()
 
-#system("unzip data/S_USA.EcomapSections.zip")
+big_fires <- fire_perimeters %>% 
+  filter(gis_acres > 300) %>% 
+  dplyr::select(year)
+
  
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
@@ -124,10 +127,12 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("Fire Years",
                                                      selectInput(inputId = "pick_year",
                                                                  label = "Choose a Year:",
-                                                                 choices = unique(fire_perimeters$year))
+                                                                 choices = unique(big_fires$year))
                                                      ),
                                         mainPanel("Fire Perimeters",
-                                                  plotOutput("sw_plot_2"))
+                                                  plotOutput("sw_plot_2"),
+                                                  "This map displays spatial data of all fire perimeters larger than 3,000 acres across all California counties for the selected year to 
+                                                  help users visualize the amount of land burned by fire. Information used to build this map was available from the California government database.")
                                     )
                                     ),
                            tabPanel("Widget 3",
@@ -184,16 +189,20 @@ server <- function(input, output) {
   
  #Widget 2: 
   year_perimeters <- reactive({
-    fire_perimeters %>% 
+    big_fires %>% 
       filter(year == input$pick_year)
   })
   
   output$sw_plot_2 <- renderPlot({
     ggplot() +
-      geom_sf(data = ca_counties, size = 0.1, color = "black", fill = "lightgray") +
-      geom_sf(data = year_perimeters(), size = 0.5, color = "red", fill = "red") +
+      geom_sf(data = ca_counties, size = 0.25, color = "burlywood4", fill = "bisque4", alpha = 0.75) +
+      geom_sf(data = year_perimeters(), size = 0.75, color = "red", fill = "orangered2") +
       theme_void() +
-      labs(title = "Map of Fire Perimeters across California in the Chosen Year")
+      theme(plot.background = element_rect(fill = "gray83", color = "white")) +
+      theme(plot.title = element_text(size = 15, hjust = 1),
+            plot.subtitle = element_text(size = 12, hjust = 1)) +
+      labs(title = "Map of Fire Perimeters\n Across California",
+           subtitle = "In the Selected Year")
   })
   
  #Widget 3:
@@ -230,7 +239,7 @@ server <- function(input, output) {
   
   output$sw_plot_4 <- renderPlot({
     ggplot(data = acres_burned(), aes(x = archive_year, y = total_acres_burned)) +
-      geom_line(size = 1, color = "red") +
+      geom_line(color = "red") +
       labs(title = "Change in Total Acres Burned across Entire Selected \n California County from 2013 - 2019",
            x = "Year",
            y = "Total Acres Burned in the County") +
