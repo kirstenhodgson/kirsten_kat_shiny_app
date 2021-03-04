@@ -56,6 +56,11 @@ big_fires <- fire_perimeters %>%
   filter(gis_acres > 300) %>% 
   dplyr::select(year)
 
+fire_acres <- fire_data %>% 
+  dplyr::select(acres_burned, archive_year, counties, name) %>%
+  group_by(counties) %>% 
+  filter(acres_burned > 0) %>% 
+  top_n(5, acres_burned) 
 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
@@ -73,7 +78,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                   threat of wildfire."),
                                                 p("This app will explore incidents of fire in all California counties between 2013-2020 using data from Cal Fire and the California Government. 
                                                   This app will explore the causes of fire across study years, vizualize fire perimeters across all of california for each given year,
-                                                  visualize the number of fires per county given a range of years, and explore the total acres burned in each county across the study period to gain a better 
+                                                  visualize the number of fires per county given a range of years, and explore the five largest fires by acreage in each county across the study period to gain a better 
                                                   understanding of how fire intensity and quantity has changed in the last decade."),
                                                 p(" "),
                                                 p(" "),
@@ -85,7 +90,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 h3("California Wildfire Incidents between 2013-2020"),
                                                 a(href ="https://www.kaggle.com/ananthu017/california-wildfire-incidents-20132020/metadata", "Link"),
                                                 p("This dataset contains information from CalFire. It contains a list of California wildfires between 2013 and 2020 and includes information on the fire location by county name and latitude and longitude coordinates, and includes information regarding the acres burned in each fire event.
-                                                  We will use this dataset to explore the total acreage burned per county as well as the number of fires per county across the study window."),
+                                                  We will use this dataset to explore the total acreage burned by the largest fires per county as well as the number of fires per county across the study window."),
                                                 h3("California Wildfire Perimeters 1950 - 2019"),
                                                 a(href = "https://gis.data.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all?geometry=-138.776%2C31.410%2C-99.445%2C43.564", "Link"),
                                                 p("This dataset contains information from the California Government Database. It contains spatial data of the perimeters of all California wildfires between 1950 and 2019 as well as information regarding the causes of fire.
@@ -156,13 +161,13 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                     ),
                            tabPanel("Widget 4",
                                     sidebarLayout(
-                                        sidebarPanel("California counties",
+                                        sidebarPanel("California Counties",
                                                      radioButtons(inputId = "choose_county_2",
                                                                   label = "Choose a California county:",
-                                                                  choices = unique(fire_data$counties)
+                                                                  choices = unique(fire_acres$counties)
                                                                  )
                                                      ),
-                                        mainPanel("Change in total acres burned by county",
+                                        mainPanel("Five Largest Fires per Country across the Study Period",
                                                   plotOutput("sw_plot_4"))
                                     ))
                            
@@ -249,21 +254,20 @@ server <- function(input, output) {
   
  #Widget 4:    
  acres_burned <- reactive({
-   fire_data %>% 
-     filter(counties == input$choose_county_2) %>% 
-     group_by(counties, archive_year) %>% 
-     mutate(total_acres_burned = sum(acres_burned)) 
+   fire_acres %>% 
+     filter(counties == input$choose_county_2) 
     })
   
   output$sw_plot_4 <- renderPlot({
-    ggplot(data = acres_burned(), aes(x = archive_year, y = total_acres_burned)) +
-      geom_line(color = "red") +
-      labs(title = "Change in Total Acres Burned across Entire Selected \n California County from 2013 - 2019",
-           x = "Year",
-           y = "Total Acres Burned in the County") +
+      ggplot(data = acres_burned(), aes(x = name, y = acres_burned)) +
+      geom_col(fill = 'red') +
+      labs(title = "Top 5 Largest Fires in Selected California County",
+           x = "",
+           y = "Acres Burned") +
+      geom_text(aes(label = acres_burned), vjust = -0.5)  +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5, size = 15)) +
-      scale_x_discrete(limits = c(2013, 2014, 2015, 2016, 2017,2018 ,2019))
+      coord_flip() +
+      theme(plot.title = element_text(hjust = 0.5, size = 15)) 
   })
 }
 shinyApp(ui = ui, server = server)
