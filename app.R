@@ -56,7 +56,7 @@ big_fires <- fire_perimeters %>%
   filter(gis_acres > 300) %>% 
   dplyr::select(year)
 
- 
+
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
                 
@@ -127,11 +127,16 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("Fire Years",
                                                      selectInput(inputId = "pick_year",
                                                                  label = "Choose a Year:",
-                                                                 choices = unique(big_fires$year))
+                                                                 choices = unique(big_fires$year),
+                                                                 selected = "2016")
                                                      ),
-                                        mainPanel("Fire Perimeters",
-                                                  plotOutput("sw_plot_2"),
-                                                  "This map displays spatial data of all fire perimeters larger than 3,000 acres across all California counties for the selected year to 
+                                        mainPanel("Map of Area Burned by Wildfire per Year",
+                                                  plotOutput("sw_plot_2",
+                                                             dblclick = "plot1_dblclick",
+                                                             brush = brushOpts(
+                                                               id = "plot2_brush",
+                                                               resetOnNew = TRUE)),
+                                                  "This map displays spatial data of all fire perimeters larger than 300 acres across all California counties for the selected year to 
                                                   help users visualize the amount of land burned by fire. Information used to build this map was available from the California government database.")
                                     )
                                     ),
@@ -188,6 +193,8 @@ server <- function(input, output) {
   })
   
  #Widget 2: 
+  ranges <- reactiveValues(x = NULL, y = NULL)
+  
   year_perimeters <- reactive({
     big_fires %>% 
       filter(year == input$pick_year)
@@ -199,10 +206,21 @@ server <- function(input, output) {
       geom_sf(data = year_perimeters(), size = 0.75, color = "red", fill = "orangered2") +
       theme_void() +
       theme(plot.background = element_rect(fill = "gray83", color = "white")) +
-      theme(plot.title = element_text(size = 15, hjust = 1),
-            plot.subtitle = element_text(size = 12, hjust = 1)) +
-      labs(title = "Map of Fire Perimeters\n Across California",
-           subtitle = "In the Selected Year")
+      theme(plot.title = element_text(size = 15, hjust = 1, face = 'bold', color = "Orangered2")) +
+      labs(title = "Map of Fire Perimeters Greater\n than 300 Acres In California") +
+      coord_sf(xlim = ranges$x, ylim = ranges$y, expand = FALSE)
+
+  })
+  observeEvent(input$plot1_dblclick, {
+    brush <- input$plot1_brush
+    if (!is.null(brush)) {
+      ranges$x <- c(brush$xmin, brush$xmax)
+      ranges$y <- c(brush$ymin, brush$ymax)
+      
+    } else {
+      ranges$x <- NULL
+      ranges$y <- NULL
+    }
   })
   
  #Widget 3:
