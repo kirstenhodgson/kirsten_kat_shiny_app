@@ -9,6 +9,8 @@ library(sf)
 library(dplyr)
 library(tigris)
 library(viridis)
+library(jpeg)
+library(ggpubr)
 
 #Read in the fire data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
@@ -60,7 +62,10 @@ fire_acres <- fire_data %>%
   dplyr::select(acres_burned, archive_year, counties, name) %>%
   group_by(counties) %>% 
   filter(acres_burned > 0) %>% 
-  top_n(5, acres_burned) 
+  top_n(5, acres_burned) %>% 
+  unite(name_year, c(name, archive_year), sep = " ")
+
+fire <- readJPEG("fire.jpg")
 
 #Creating the user interface
 ui <- fluidPage(theme = shinytheme("simplex"),
@@ -164,11 +169,14 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("California Counties",
                                                      radioButtons(inputId = "choose_county_2",
                                                                   label = "Choose a California county:",
-                                                                  choices = unique(fire_acres$counties)
+                                                                  choices = unique(fire_acres$counties),
+                                                                  selected = "Santa Barbara"
                                                                  )
                                                      ),
-                                        mainPanel("Five Largest Fires per Country across the Study Period",
-                                                  plotOutput("sw_plot_4"))
+                                        mainPanel("Five Largest Fires by Acres Burned across the Study Period:",
+                                                  plotOutput("sw_plot_4"),
+                                                  "This graph displays the five largest fires in the selected county by acres burned across the study period from 2013 - 2020. 
+                                                  Information used to build this map was available on the California government database.")
                                     ))
                            
                 ))
@@ -259,15 +267,18 @@ server <- function(input, output) {
     })
   
   output$sw_plot_4 <- renderPlot({
-      ggplot(data = acres_burned(), aes(x = name, y = acres_burned)) +
-      geom_col(fill = 'red') +
-      labs(title = "Top 5 Largest Fires in Selected California County",
-           x = "",
-           y = "Acres Burned") +
-      geom_text(aes(label = acres_burned), vjust = -0.5)  +
+    ggplot(data = acres_burned(), aes(x = name_year, y = acres_burned)) +
+      background_image(fire) +
+      geom_col(fill = "white", alpha = 0.8) +
+      labs(y = "Acres Burned",
+           x = "") +
+      geom_text(aes(label = scales::comma(acres_burned)), hjust = -0.05, size = 2.5, color = 'white')  +
       theme_minimal() +
       coord_flip() +
-      theme(plot.title = element_text(hjust = 0.5, size = 15)) 
+      theme(axis.text.y = element_text(face = 'bold', colour = "orangered2")) +
+      theme(axis.title.x = element_text(size = 10, face = 'bold', colour = "orangered2")) +
+      theme(axis.text.x = element_text(size = 8, colour = "gray88")) +
+      theme(plot.background = element_rect(fill = "gray10", color = "white"))
   })
 }
 shinyApp(ui = ui, server = server)
