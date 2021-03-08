@@ -11,6 +11,8 @@ library(tigris)
 library(viridis)
 library(jpeg)
 library(ggpubr)
+library(rmapshaper)
+
 
 #Read in the fire data: 
 fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>% 
@@ -23,6 +25,8 @@ fire_data <- read.csv(here("data", "fire incidents 2013-2020.csv")) %>%
 # Read in CA counties map data:
 ca_counties <- read_sf(here("data","ca_counties"), layer = "CA_Counties_TIGER2016") %>% 
   clean_names()
+
+ca_simple = rmapshaper::ms_simplify(ca_counties, keep = 0.003, keep_shapes = TRUE)
 
 #Read in CA fire perimeters data: 
 fire_perimeters <- read_sf(here("data", "fire_perimeters"), layer = "California_Fire_Perimeters__all_") %>% 
@@ -56,8 +60,10 @@ fire_cause_counts <- fire_perimeters %>%
     ungroup()
 
 big_fires <- fire_perimeters %>% 
-  filter(gis_acres > 300) %>% 
+  filter(gis_acres > 100) %>% 
   dplyr::select(year)
+
+big_fires_simple = rmapshaper::ms_simplify(big_fires, keep = 0.003, keep_shapes = TRUE)
 
 fire_acres <- fire_data %>% 
   dplyr::select(acres_burned, archive_year, counties, name) %>%
@@ -148,17 +154,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                         sidebarPanel("Fire Years",
                                                      selectInput(inputId = "pick_year",
                                                                  label = "Choose a Year:",
-                                                                 choices = unique(big_fires$year),
+                                                                 choices = unique(big_fires_simple$year),
                                                                  selected = "2016")
                                                      ),
-                                        mainPanel("Map of Area Burned by Wildfire per Year",
-                                                  plotOutput("sw_plot_2",
-                                                             dblclick = "plot1_dblclick",
-                                                             brush = brushOpts(
-                                                               id = "plot2_brush",
-                                                               resetOnNew = TRUE)),
-                                                  "This map displays spatial data of all fire perimeters larger than 300 acres across all California counties for the selected year to 
-                                                  help users visualize the amount of land burned by fire. Information used to build this map was available from the California government database.")
+                                        mainPanel(h3("Map of Area Burned by Wildfire per Year"),
+                                                  p(" "),
+                                                  p("This widget creates a map of california countines and overlays all fire perimeters larger than 100 acres across the state for the selected year to
+                                                    help users visualize the amount of land burned by fire."),
+                                                    plotOutput("sw_plot_2"),
+                                                  "Information used to build this map was available from the California government database.")
                                     )
                                     ),
                            tabPanel("Widget 3",
@@ -194,10 +198,11 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                   selected = "Santa Barbara"
                                                                  )
                                                      ),
-                                        mainPanel("Five Largest Fires by Acres Burned across the Study Period:",
+                                        mainPanel(h3("Five Largest Fires by Acres Burned across the Study Period"),
+                                                  p(" "),
+                                                  p("This widget charts the five largest fires across the study period, from 2013 to 2020, in the selected county by acres burned."),
                                                   plotOutput("sw_plot_4"),
-                                                  "This graph displays the five largest fires in the selected county by acres burned across the study period from 2013 - 2020. 
-                                                  Information used to build this map was available on the California government database.")
+                                                  "Information used to build this map was available on the California government database.")
                                     ))
                            
                 ))
@@ -245,36 +250,26 @@ server <- function(input, output) {
   })
   
  #Widget 2: 
-  ranges <- reactiveValues(x = NULL, y = NULL)
+ranges <- reactiveValues(x = NULL, y = NULL)
   
   year_perimeters <- reactive({
-    big_fires %>% 
+    big_fires_simple %>% 
       filter(year == input$pick_year)
-  })
+  }) %>% 
+    bindCache(input$pick_year)
   
   output$sw_plot_2 <- renderPlot({
     ggplot() +
-      geom_sf(data = ca_counties, size = 0.25, color = "burlywood4", fill = "bisque4", alpha = 0.75) +
+      geom_sf(data = ca_simple, size = 0.3, color = "bisque4", fill = "burlywood4", alpha = 0.7) +
       geom_sf(data = year_perimeters(), size = 0.75, color = "red", fill = "orangered2") +
       theme_void() +
-      theme(plot.background = element_rect(fill = "gray83", color = "white")) +
-      theme(plot.title = element_text(size = 15, hjust = 1, face = 'bold', color = "Orangered2")) +
-      labs(title = "Map of Fire Perimeters Greater\n than 300 Acres In California") +
+      theme(plot.background = element_rect(fill = "gray10", color = "white")) +
+      labs(title = "Map of Fire Perimeters \n Across California") +
+      theme(plot.title = element_text(size = 15, hjust = 1, color = "orangered2")) +
       coord_sf(xlim = ranges$x, ylim = ranges$y, expand = FALSE)
-
-  })
-  observeEvent(input$plot1_dblclick, {
-    brush <- input$plot1_brush
-    if (!is.null(brush)) {
-      ranges$x <- c(brush$xmin, brush$xmax)
-      ranges$y <- c(brush$ymin, brush$ymax)
-      
-    } else {
-      ranges$x <- NULL
-      ranges$y <- NULL
-    }
-  })
-  
+  }) %>% 
+    bindCache(input$pick_year)
+ 
  #Widget 3:
   fire_counts <- reactive({
     fire_counts <- fire_data %>% 
